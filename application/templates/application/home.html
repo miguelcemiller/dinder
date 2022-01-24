@@ -2,7 +2,37 @@
 {% load static %}
 
 {% block content %}
-    <div>this is a nice cold drink</div>
+    
+    <div class="card-container">
+        <div class="user-container">
+            <div class="user-icon-container">
+                <img class="user-icon" src="{% static 'images/user_sample.jpg' %}" draggable="false">
+            </div>
+            <div class="user-name">miguelcemiller</div>
+        </div>
+        <div class="photo-container">
+            <img class="photo" src="{% static 'images/photo_sample.jpg' %}" draggable="false">
+        </div>
+        <div class="details-container">
+            <div class="dog-info">
+                <div class="info-container">
+                    <div>Chiba</div>
+                    <div>11 months</div>
+                </div>
+                <div class="dog-location-container">
+                    <img class="location-icon" src="{% static 'images/location.svg' %}">
+                    <div>Santa Cruz, Laguna</div>
+                </div>
+            </div>
+            <div class="dog-desc">
+                hungry and sleepyyy :(
+            </div>
+        </div>
+        <div class="options-container">
+            <img src="{% static 'images/reject.svg' %}">
+            <img src="{% static 'images/love.svg' %}">
+        </div>
+    </div>
 
 
     
