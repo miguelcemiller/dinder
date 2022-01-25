@@ -1,6 +1,43 @@
 {% load static %}
 
 <header>
+    <div class="profile-nav-overlay">
+        <div class="slider slide-out">
+            <div class="profile-nav-modal">
+                <div class="modal-header">
+                    <div class="profile-icon-container">
+                        <img class="profile-icon" src="{% static 'images/icon_sample.jpg' %}" draggable="false">
+                    </div>
+                    <div class="profile-name">Chow</div>
+                    <img class="nav-close" src="{% static 'images/close.svg'%}">
+                </div>
+                <div class="modal-main-menu">
+                    <div class="main-menu-heading">Main Menu</div>
+                    <div class="main-menu-container">
+                        <img src="{% static 'images/home.svg' %}">
+                        <div>Home</div>
+                    </div>
+                    <div class="main-menu-container">
+                        <img src="{% static 'images/profile.svg' %}">
+                        <div>Profile</div>
+                    </div>
+                    <div class="main-menu-container">
+                        <img src="{% static 'images/logout.svg' %}">
+                        <div>Logout</div>
+                    </div>
+                </div>
+                <div class="modal-stats">
+                    
+                </div>
+                <div class="modal-messages">
+                    
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+
     <nav>
         <div class="profile-nav-container">
             <div class="profile-nav">
@@ -17,3 +54,41 @@
     </nav>  
  
 </header>
+
+
+<script>
+
+    // Modal Side Nav
+    $('.profile-nav-container').click(function(e) {
+        // Display modal
+        $('.profile-nav-overlay').css('display', 'flex');
+
+        $('.slider').removeClass('slide-out');
+        $('.slider').addClass('slide-in');
+
+    });
+
+    // On close click
+    $(".nav-close").on("click", function() {
+        $('.slider').removeClass('slide-in');
+        $('.slider').addClass('slide-out');
+
+         // wait 0.5s for animation to finish
+        setTimeout(function() {
+            $(".profile-nav-overlay").css("display", "none");
+        }, 500);
+    });
+
+    // When overlay background is clicked
+
+    $(".profile-nav-overlay").on("click", function() { 
+        $('.slider').removeClass('slide-in');
+        $('.slider').addClass('slide-out');
+
+         // wait 0.5s for animation to finish
+        setTimeout(function() {
+            $(".profile-nav-overlay").css("display", "none");
+        }, 500);
+    });
+
+</script>
