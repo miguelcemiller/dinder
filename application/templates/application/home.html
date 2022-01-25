@@ -6,26 +6,26 @@
     <div class="card-container">
         <div class="user-container">
             <div class="user-icon-container">
-                <img class="user-icon" src="{% static 'images/user_sample.jpg' %}" draggable="false">
+                <img class="user-icon" src="{{profiles.user_image}}" draggable="false">
             </div>
-            <div class="user-name">miguelcemiller</div>
+            <div class="user-name">{{profiles.user.username}}</div>
         </div>
         <div class="photo-container">
-            <img class="photo" src="{% static 'images/photo_sample.jpg' %}" draggable="false">
+            <img class="photo" src="{{profiles.dog_image}}" draggable="false">
         </div>
         <div class="details-container">
             <div class="dog-info">
                 <div class="info-container">
-                    <div>Chiba</div>
-                    <div>11 months</div>
+                    <div>{{profiles.dog_name}}</div>
+                    <div>{{profiles.dog_age}} months</div>
                 </div>
                 <div class="dog-location-container">
                     <img class="location-icon" src="{% static 'images/location.svg' %}">
-                    <div>Santa Cruz, Laguna</div>
+                    <div>{{profiles.location}}, Laguna</div>
                 </div>
             </div>
             <div class="dog-desc">
-                hungry and sleepyyy :(
+                {{profiles.dog_description}}
             </div>
         </div>
         <div class="options-container">
