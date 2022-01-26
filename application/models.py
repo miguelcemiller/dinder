@@ -41,12 +41,13 @@ LOCATIONS = (
 
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, null=True, blank=True)
+    username = models.CharField(max_length=25, blank=False, null=True)
     first_name = models.CharField(max_length=200, blank=True, null=True)
     last_name = models.CharField(max_length=200, blank=True, null=True)
     user_image = models.ImageField(null=True, blank=True, upload_to='static/images/users/')
 
     dog_name = models.CharField(max_length=200, blank=True, null=True)
-    dog_age = models.IntegerField(max_length=10, blank=True, null=True)
+    dog_age = models.IntegerField(blank=True, null=True)
     dog_description = models.TextField(blank=True, null=True)
     dog_image = models.ImageField(null=True, blank=True, upload_to='static/images/dogs/')
 
@@ -65,6 +66,7 @@ def create_profile(sender, instance, created, **kwargs):
         user = instance
         profile = Profile.objects.create(
             user = user,
+            username = user.username
         )
     print("this is fired off")
 

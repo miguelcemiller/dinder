@@ -1,5 +1,8 @@
 from django.shortcuts import render
 from . models import Profile
+from django.core import serializers
+from django.http import JsonResponse, HttpResponse
+import json
 
 # Create your views here.
 
@@ -8,11 +11,18 @@ def home_view(request):
 
     context = {'profiles': profiles}
 
-    img_path = str(profiles.dog_image)
+    #img_path = str(profiles.dog_image)
 
-    classify_dog_breed(img_path)
+    #classify_dog_breed(img_path)
 
     return render(request, 'application/home.html', context)
+
+def dog_cards(request):
+    profiles = Profile.objects.all()
+    profiles_serializers = serializers.serialize("json", profiles)
+
+    response = json.loads(profiles_serializers)
+    return JsonResponse({'response': response}, status=200)
 
 
 

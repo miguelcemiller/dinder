@@ -30,8 +30,63 @@
         </div>
         <div class="options-container">
             <img src="{% static 'images/reject.svg' %}">
-            <img src="{% static 'images/love.svg' %}">
+            <img class="love" src="{% static 'images/love.svg' %}" data-url="{% url 'dog_cards' %}">
         </div>
+        
     </div>
+    <div class="response">Helloolllo</div>
+
+
+
+
+    <script>
+        // Get JSON data from Django
+        $('.love').on('click', function(){
+            $.ajax({
+                url: $('.love').attr('data-url'),
+                method: "GET",
+                dataType: 'json',
+                success: function(response) {
+                    console.log(response.response);
+
+                    // number of objects
+                    var num = response.response.length;
+
+                    // Change user picture
+                    $('.user-icon').attr('src', response.response[0].fields.user_image);
+
+                    // Change username
+                    $('.user-name').html(response.response[0].fields.username);
+
+                    // Change dog photo
+                    $('.photo').attr('src', response.response[0].fields.dog_image);
+
+                    // Change dog desccription
+                    $('.dog-desc').attr('src', response.response[0].fields.dog_description);
+
+                    // Change dog name
+                    $('.info-container > div:first-child').html(response.response[0].fields.dog_name);
+
+                    // Change dog age
+                    $('.info-container > div:last-child').html(response.response[0].fields.dog_age + " months");
+
+                    // Change dog location
+                    $('.dog-location-container > div').html(response.response[0].fields.location + ", Laguna");
+
+                    // Change dog desccription
+                    $('.dog-desc').html(response.response[0].fields.dog_description);
+
+                    dog_age = response.response[0].fields.dog_age;
+                    console.log(response.response[0].fields.dog_age);
+                    $('.response').html(response.response[0].fields.user.username);
+                },
+                error: function(err) {
+                    console.log(err);
+                }
+            });
+        });
+    </script>
+    
 
 {% endblock content %}
+
