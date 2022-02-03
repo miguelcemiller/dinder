@@ -1,29 +1,156 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
+from django.contrib.auth import login, authenticate, logout
 from . models import Profile
 from django.core import serializers
-from django.http import JsonResponse, HttpResponse
+from django.http import JsonResponse
 import json
+
+from . forms import CustomUserCreationForm
+
+from django.contrib.auth.decorators import login_required
+
+from django.contrib.auth.models import User
+
+
+from django.core.files import File
+from django.urls import reverse_lazy
 
 # Create your views here.
 
+def login_view(request):
+    if request.method == 'POST':
+        username= request.POST['username']
+        password = request.POST['password']
+
+        try:
+            user = User.objects.get(username=username)
+        except:
+            print("Username does not exist")
+
+        user = authenticate(request, username=username, password=password)
+
+        if user is not None:
+            login(request, user)
+            print("logged in")
+
+            return redirect('home')
+        else:
+            print('Username or password is incorrect')
+           
+    return render(request, 'application/login.html')
+
+def logout_view(request):
+    logout(request)
+    return redirect('login')
+
+def register_view(request):
+    if request.method == 'POST':
+        username = request.POST.get('username')
+        first_name = request.POST.get('firstname')
+        last_name = request.POST.get('lastname')
+        location = request.POST.get('location')
+        password = request.POST.get('password')
+        user_image = request.FILES['userimage']
+        
+        dog_name = request.POST.get('dogname')
+        dog_age = request.POST.get('dogage')
+        dog_description = request.POST.get('dogdescription')
+        dog_image = request.FILES['dogimage'] # For form field checking only
+
+        if username and first_name and last_name and user_image and location and password and dog_name and dog_age and dog_description and dog_image: # Check if fields are filled out
+            user_obj = User.objects.create(username=username, first_name=first_name, last_name=last_name) # Save User object, then Profile is automatically created
+            user_obj.set_password(password)
+            user_obj.save()
+
+            # Update Profile user image
+            # Source: https://stackoverflow.com/questions/8822755/how-to-save-an-image-using-django-imagefield
+            up_file_user = request.FILES['userimage']
+            destination_user = open('/tmp/' + up_file_user.name , 'wb+')
+            for chunk in up_file_user.chunks():
+                destination_user.write(chunk)
+            destination_user.close()
+            img_user = Profile.objects.get(username=username)
+            img_user.user_image.save(up_file_user.name, File(open('/tmp/' + up_file_user.name, 'rb')))
+            img_user.save()
+            
+            # Update Profile object
+            prof_obj = Profile.objects.get(username=username)
+            prof_obj.location = location
+            prof_obj.dog_name = dog_name
+            prof_obj.dog_age = dog_age
+            prof_obj.dog_description = dog_description
+            prof_obj.save()
+
+            # Update Profile dog image
+            # Source: https://stackoverflow.com/questions/8822755/how-to-save-an-image-using-django-imagefield
+            up_file = request.FILES['dogimage']
+            destination = open('/tmp/' + up_file.name , 'wb+')
+            for chunk in up_file.chunks():
+                destination.write(chunk)
+            destination.close()
+            img = Profile.objects.get(username=username)
+            img.dog_image.save(up_file.name, File(open('/tmp/' + up_file.name, 'rb')))
+            img.save()
+
+            # Identify dog breed
+            current_user_profile = Profile.objects.get(username=username)
+            img_path = str(current_user_profile.dog_image)
+            user_dog_breed = classify_dog_breed(img_path)
+
+            # Store dog_breed in databse
+            current_user_profile.dog_breed = user_dog_breed
+            current_user_profile.save()
+
+            # Login the user
+            user = authenticate(username=username, password=password)
+            if user is not None:
+                if user.is_active:
+                    login(request, user)
+
+            # Redirect to home
+            return redirect('home')
+        else:
+            print('Fill out all the fields')
+        
+    return render(request, 'application/register.html')
+
+# Store here profiles
+profiles_dog_breed = []
+
+@login_required(login_url=reverse_lazy("login"))
 def home_view(request):
-    profiles = Profile.objects.all().first()
+    profiles_dog_breed.clear() # Reset value
+    # Get current user profile
+    current_user = request.user
+    current_user_profile = Profile.objects.get(user=current_user)
 
-    context = {'profiles': profiles}
+    # Get dog breed of user
+    user_dog_breed = current_user_profile.dog_breed
 
-    #img_path = str(profiles.dog_image)
+    # Loop through all users except current, store profiles with same dog breed
+    profiles = Profile.objects.all().exclude(username=current_user_profile.username)
 
-    #classify_dog_breed(img_path)
+    for i in profiles:
+        # Identify dog breed
+        i_dog_breed = i.dog_breed
+
+        # Compare loop dog breed to user dog breed 
+        if i_dog_breed == user_dog_breed:
+            profiles_dog_breed.append(i)
+
+    print("User's dog breed:", user_dog_breed)
+    print("Users with same breed:",profiles_dog_breed)  
+    print("Length:", len(profiles_dog_breed))    
+
+    context = {'current_user_profile': current_user_profile, 'profiles_dog_breed_len': len(profiles_dog_breed)}
 
     return render(request, 'application/home.html', context)
 
 def dog_cards(request):
-    profiles = Profile.objects.all()
-    profiles_serializers = serializers.serialize("json", profiles)
+    profiles_serializers = serializers.serialize("json", profiles_dog_breed)
 
     response = json.loads(profiles_serializers)
     return JsonResponse({'response': response}, status=200)
-
 
 
 # Define the model
@@ -121,6 +248,10 @@ def classify_dog_breed(img_path):
     #plt.show()
     #display relevant predictor result
     if dog_detector(img_path):
-      print(str(breed).split('.')[-1])
+      #print(str(breed).split('.')[-1])
+      return str(breed).split('.')[-1]
     else:
-      print("Not a dog")
+      #print("Not a dog")
+      return "not dog"
+
+    

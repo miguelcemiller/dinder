@@ -1,0 +1,32 @@
+{% extends 'main.html' %}
+
+
+{% block content %}
+
+<div class="register-form-container">
+    <div>Create an Account</div>
+    <form class="register-form" action="{% url 'register' %}" method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="form-heading">Personal Info</div>
+        <div class="fullname-container">
+            <input class="form-text" name="firstname" placeholder="First Name">
+            <input class="form-text" name="lastname" placeholder="Last Name">
+        </div>
+        <input class="form-text" name="location" placeholder="Location">
+        <input class="form-text" name="username" placeholder="Username">
+        <input class="form-text" type="password" name="password" 
+        placeholder="Password">
+        <input type="file" id="img1" name="userimage" accept="image/*">
+        <div class="form-heading">Dog Info</div>
+        <input class="form-text" name="dogname" placeholder="Dog Name">
+        <input class="form-text" name="dogage" placeholder="Age in Months">
+        <input class="form-text" name="dogdescription" placeholder="What do you want to say?">
+        <input type="file" id="img2" name="dogimage" accept="image/*">
+        <input class="form-submit" type="submit" value="Create Account">
+    </form>
+    
+    <a href="{% url 'login' %}"><div>Already have an account</div></a>
+</div>
+
+
+{% endblock content %}

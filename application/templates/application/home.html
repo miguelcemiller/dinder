@@ -4,87 +4,132 @@
 {% block content %}
     
     <div class="card-container">
+        {% if profiles_dog_breed_len == 0 %}
+        <div class="nothing-container">
+            <div>Uh, oh!</div>
+            <img src="{% static 'images/no_dogs2_trans.png' %}" draggable="false" >
+        </div>
+        {% else %}
         <div class="user-container">
             <div class="user-icon-container">
-                <img class="user-icon" src="{{profiles.user_image}}" draggable="false">
+                <img class="user-icon" src="" draggable="false">
             </div>
-            <div class="user-name">{{profiles.user.username}}</div>
+            <div class="user-name"></div>
         </div>
         <div class="photo-container">
-            <img class="photo" src="{{profiles.dog_image}}" draggable="false">
+            <img class="photo" src="" draggable="false">
         </div>
         <div class="details-container">
             <div class="dog-info">
                 <div class="info-container">
-                    <div>{{profiles.dog_name}}</div>
-                    <div>{{profiles.dog_age}} months</div>
+                    <div></div>
+                    <div> months</div>
                 </div>
                 <div class="dog-location-container">
-                    <img class="location-icon" src="{% static 'images/location.svg' %}">
-                    <div>{{profiles.location}}, Laguna</div>
+                    <img class="location-icon" src="{% static 'images/location.svg' %}" draggable="false">
+                    <div>, Laguna</div>
                 </div>
             </div>
             <div class="dog-desc">
-                {{profiles.dog_description}}
+                
             </div>
         </div>
         <div class="options-container">
-            <img src="{% static 'images/reject.svg' %}">
+            <img class="reject" src="{% static 'images/reject.svg' %}">
             <img class="love" src="{% static 'images/love.svg' %}" data-url="{% url 'dog_cards' %}">
         </div>
-        
+        {% endif %}
     </div>
-    <div class="response">Helloolllo</div>
-
-
 
 
     <script>
-        // Get JSON data from Django
-        $('.love').on('click', function(){
+        // When html page has been loaded, Get JSON data from Django
+        var response_data = {}
+        var i = 0;
+        var num = 0;
+
+        $(document).ready(function(){
             $.ajax({
                 url: $('.love').attr('data-url'),
                 method: "GET",
                 dataType: 'json',
                 success: function(response) {
                     console.log(response.response);
+                    num = response.response.length;
+                    //alert(num);
+                    response_data = response.response;
+                    //console.log(response_data[0].fields)
 
-                    // number of objects
-                    var num = response.response.length;
-
-                    // Change user picture
-                    $('.user-icon').attr('src', response.response[0].fields.user_image);
-
-                    // Change username
-                    $('.user-name').html(response.response[0].fields.username);
-
-                    // Change dog photo
-                    $('.photo').attr('src', response.response[0].fields.dog_image);
-
-                    // Change dog desccription
-                    $('.dog-desc').attr('src', response.response[0].fields.dog_description);
-
-                    // Change dog name
-                    $('.info-container > div:first-child').html(response.response[0].fields.dog_name);
-
-                    // Change dog age
-                    $('.info-container > div:last-child').html(response.response[0].fields.dog_age + " months");
-
-                    // Change dog location
-                    $('.dog-location-container > div').html(response.response[0].fields.location + ", Laguna");
-
-                    // Change dog desccription
-                    $('.dog-desc').html(response.response[0].fields.dog_description);
-
-                    dog_age = response.response[0].fields.dog_age;
-                    console.log(response.response[0].fields.dog_age);
-                    $('.response').html(response.response[0].fields.user.username);
+                    // Assign value of first same user breed
+                    updateCard(response_data);
                 },
                 error: function(err) {
                     console.log(err);
                 }
             });
+            
+            // Love click event listener
+            $('.love').on('click', function() {
+                i += 1;
+                if (i < num) {
+                    updateCard(response_data);
+                }
+                else {
+                    $('.card-container').empty();
+                    $('.card-container').html(
+                        `<div class="nothing-container">
+                            <div>Uh, oh!</div>
+                            <img src="{% static 'images/no_dogs2_trans.png' %}" draggable="false" >
+                         </div>`
+                    );
+                }
+            });
+
+             // Reject click event listener
+             $('.reject').on('click', function() {
+                i += 1;
+                if (i < num) {
+                    updateCard(response_data);
+                }
+                else {
+                    $('.card-container').empty();
+                    $('.card-container').html(
+                        `<div class="nothing-container">
+                            <div>Uh, oh!</div>
+                            <img src="{% static 'images/no_dogs2_trans.png' %}" draggable="false" >
+                         </div>`
+                    );
+                }
+            });
+
         });
+
+
+        function updateCard(response_data) {
+            // Change user picture
+            $('.user-icon').attr('src', response_data[i].fields.user_image);
+            // Change username
+            $('.user-name').html(response_data[i].fields.username);
+
+            // Change dog photo
+            $('.photo').attr('src', response_data[i].fields.dog_image);
+
+            // Change dog desccription
+            $('.dog-desc').attr('src', response_data[i].fields.dog_description);
+
+            // Change dog name
+            $('.info-container > div:first-child').html(response_data[i].fields.dog_name);
+
+            // Change dog age
+            $('.info-container > div:last-child').html(response_data[i].fields.dog_age + " months");
+
+            // Change dog location
+            $('.dog-location-container > div').html(response_data[i].fields.location + ", Laguna");
+
+            // Change dog desccription
+            $('.dog-desc').html(response_data[i].fields.dog_description); 
+        }
+        
     </script>
     
 

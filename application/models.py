@@ -41,7 +41,7 @@ LOCATIONS = (
 
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, null=True, blank=True)
-    username = models.CharField(max_length=25, blank=False, null=True)
+    username = models.CharField(max_length=25, blank=True, null=True)
     first_name = models.CharField(max_length=200, blank=True, null=True)
     last_name = models.CharField(max_length=200, blank=True, null=True)
     user_image = models.ImageField(null=True, blank=True, upload_to='static/images/users/')
@@ -49,6 +49,7 @@ class Profile(models.Model):
     dog_name = models.CharField(max_length=200, blank=True, null=True)
     dog_age = models.IntegerField(blank=True, null=True)
     dog_description = models.TextField(blank=True, null=True)
+    dog_breed = models.CharField(max_length=200, blank=True, null=True)
     dog_image = models.ImageField(null=True, blank=True, upload_to='static/images/dogs/')
 
     location = models.CharField(max_length=20, choices=LOCATIONS, blank=False, null=False)
@@ -57,7 +58,8 @@ class Profile(models.Model):
     id = models.UUIDField(default=uuid.uuid4, unique=True, primary_key=True, editable=False)
 
     def __str__(self):
-        return str(self.user.username)
+        if self.user:
+            return str(self.user.username) or ''
 
 # Create Profile when User is created
 @receiver(post_save, sender=User)
@@ -66,7 +68,9 @@ def create_profile(sender, instance, created, **kwargs):
         user = instance
         profile = Profile.objects.create(
             user = user,
-            username = user.username
+            username = user.username,
+            first_name = user.first_name,
+            last_name = user.last_name
         )
     print("this is fired off")
 

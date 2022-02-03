@@ -6,9 +6,9 @@
             <div class="profile-nav-modal">
                 <div class="modal-header">
                     <div class="profile-icon-container">
-                        <img class="profile-icon" src="{% static 'images/icon_sample.jpg' %}" draggable="false">
+                        <img class="profile-icon" src="{{current_user_profile.user_image}}" draggable="false">
                     </div>
-                    <div class="profile-name">Chow</div>
+                    <div class="profile-name">{{current_user_profile.first_name}}</div>
                     <img class="nav-close" src="{% static 'images/close.svg'%}">
                 </div>
                 <div class="modal-main-menu">
@@ -21,10 +21,10 @@
                         <img src="{% static 'images/profile.svg' %}">
                         <div>Profile</div>
                     </div>
-                    <div class="main-menu-container">
+                    <a href="{% url 'logout' %}" class="main-menu-container">
                         <img src="{% static 'images/logout.svg' %}">
                         <div>Logout</div>
-                    </div>
+                    </a>
                 </div>
                 <div class="modal-stats">
                     
@@ -37,16 +37,20 @@
 
     </div>
 
+    
 
     <nav>
+        {% if request.get_full_path == '/home'%}
+        
         <div class="profile-nav-container">
             <div class="profile-nav">
                 <span class="profile-icon-container">
-                    <img class="profile-icon" src="{% static 'images/icon_sample.jpg' %}" draggable="false">
+                    <img class="profile-icon" src="{{current_user_profile.user_image}}" draggable="false">
                 </span>
-                <div class="profile-name">Chow</div>
+                <div class="profile-name">{{current_user_profile.first_name}}</div>
             </div>
         </div>
+        {% endif %}
 
         <a class="logo" href="/" draggable="false">
             <img class="logo" src="{% static 'images/dinder.svg' %}" draggable="false">
