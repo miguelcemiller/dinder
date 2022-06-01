@@ -1,0 +1,89 @@
+{% extends 'main.html' %}
+{% load static %}
+
+{% block content %}
+
+<div class="container">
+    <div class="content">
+        {% include 'navbar.html' %}
+
+        <div class="header">
+            <a href="{% url 'home' %}"><img class="back" src="{% static 'images/back.svg' %}" draggable="false"></a>
+            <div>Matches</div>
+            <div class="data" data="{{matches_obj}}"></div>
+        </div>
+
+        <div class="contacts-container">
+                <!--script propagation-->
+        </div>
+
+    </div>
+</div>
+
+<script>
+    $(document).ready(function () {
+        //Dito mag populate 
+
+        function getMatchesObj() {
+            let matches_obj = $('.data').attr('data');
+
+            matches_obj = matches_obj.substr(1).slice(0, -1);
+            //var re = /{(.*?)}/; // start and end { }
+            var re = /{|}/;
+            matches_obj = matches_obj.split(re);
+
+            //Remove even num index
+            let temp = []
+            for (x = 0; x < matches_obj.length; x++) {
+                if (x % 2 != 0) {
+                    temp.push(matches_obj[x]);
+                }
+            }
+            matches_obj = temp;
+
+            //combine all
+            temp = []
+            for (x = 0; x < matches_obj.length; x++) {
+                var properties = matches_obj[x].toString().replaceAll(`'`, '').split(', ');
+                var obj = {};
+                properties.forEach(function (property) {
+                    var tup = property.split(': ');
+                    obj[tup[0]] = tup[1];
+                });
+                temp.push(obj);
+            }
+            matches_obj = temp;
+
+            return matches_obj;
+        }
+
+        // Update
+        let matches_obj = getMatchesObj();
+        console.log(matches_obj);
+
+        for (x=0; x<matches_obj.length;x++) {
+            $('.contacts-container').append(
+                `<div class="contact">
+                    <div class="contact-info-container">
+                        <img src="/${matches_obj[x].image}" draggable="false">
+                        <div>${matches_obj[x].name}</div>
+                    </div>
+
+                    <div class="contact-buttons-container">
+                        <a href="/message/${matches_obj[x].username}" title="Send message">
+                            <img src="{% static 'images/message.svg' %}" draggable="false">
+                        </a>
+                        <a href="/profile/${matches_obj[x].username}" title="View profile">
+                            <img src="{% static 'images/profile.svg' %}" draggable="false">
+                        </a>
+                        <a href="/prediction/${matches_obj[x].username}" title="See puppy prediction">
+                            <img src="{% static 'images/prediction.svg' %}" draggable="false">
+                        </a>
+                    </div>
+                </div>`
+            );
+        }
+    });
+</script>
+
+{% endblock content %}

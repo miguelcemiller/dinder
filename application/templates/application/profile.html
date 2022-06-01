@@ -1,0 +1,243 @@
+{% extends 'main.html' %}
+{% load static %}
+
+{% block content %}
+
+<div class="container">
+    <div class="content">
+        {% include 'navbar.html' %}
+
+        <form class="profile-form" action="{% url 'profile' %}" method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="header no-center">
+                <a href="{% url 'home' %}"><img class="back" src="{% static 'images/back.svg' %}" draggable="false"></a>
+                <div class="profile-header">
+                    <div class="profile-image-container" data="/{{user_profile.image}}" style="cursor: default;">
+                        <img class="profile-camera hide" src="{% static 'images/camera.svg' %}" draggable="false">
+                        <input class="profile-image-btn" type="button" style="cursor: default;">
+                        <input id="profile-image" type="file" name="image" accept="image/*" style="display: none">
+                    </div>
+                
+                    <input class="profile-input p-name" type="text" name="name" value="{{user_profile.name}}">
+                </div>
+            </div>
+
+            <div class="other-profile-info">
+                <div class="p-info">
+                    <div class="p-profile-gender-container">
+                        <div class="p-gender-container" data="{{user_profile.gender}}">
+                            <div class="profile-heading age-gender">Gender</div>
+                            <input type="button" id="male" class="gender-btn" value="Male">
+                            <input type = "button" id="female"  class="gender-btn" value="Female">
+    
+                            <input type="hidden" name="gender" value="">
+                        </div>   
+
+                        <div class="p-age-container">
+                            <div class="profile-heading age-gender">Age</div>
+                            <div class="p-age-container-item">
+                                <input type="text" maxlength="2" onkeypress="validateNum(event)" class="form-input p-input" name="year" value="{{user_profile.year}}">
+                                <div>yr.</div>
+                            </div>
+                            <div class="p-age-container-item">
+                                <input type="text" maxlength="2" onkeypress="validateNum(event)" class="form-input p-input" name="month" value="{{user_profile.month}}">
+                                <div>mo.</div>
+                            </div>
+                        </div>
+                    </div>
+                   
+                    
+                    <div class="login-details-container">
+                        <div>
+                            <div class="profile-heading">Username</div>
+                            <input class="form-input" type="" name="username" value="{{user_profile.username}}" disabled>
+                        </div>
+                        <div>
+                            <div class="profile-heading">Password</div>
+                            <input class="form-input" type="password" name="password" value="{{user_profile.password}}">
+                        </div>
+                    </div>
+                    
+                    <div class="p-location-container">
+                        <div>
+                            <div class="profile-heading">Province</div>
+                            <input class="profile-input" type="text" name="province" value="{{user_profile.province}}">
+                        </div>
+                        <div>
+                            <div class="profile-heading">City</div>
+                            <input class="profile-input" type="text" name="city" value="{{user_profile.city}}">
+                        </div>
+                    </div>
+                    
+                    <div class="profile-heading">About me</div>
+                    <textarea class="form-input-multi" type="text" name="about" style="margin-bottom: 0px;">{{user_profile.about}}</textarea>
+                </div>
+            </div>
+
+            <div class="validation-error hide"></div>
+
+            <div class="button-spinner hide" style="margin-top: 25px;">
+                <div class="spinner"></div>
+            </div>
+
+            <input type="submit" class="form-submit" value="Save changes">
+        </form>
+    </div>
+</div>
+
+
+<script>
+    // Onload add background image
+    $('.profile-image-container').css('background-image', "url(" + $('.profile-image-container').attr('data') + ")");
+
+    // Onload select gender
+    let gender = $('.p-gender-container').attr('data');
+    if (gender == 'Male') {
+        $("#male").addClass("selected");
+        $("#female").removeClass("selected");
+
+        // Change value of hidden input to 'Male'
+        $('input[name=gender]').val('Male');
+    } else {
+        $("#male").removeClass("selected");
+        $("#female").addClass("selected");
+
+        // Change value of hidden input to 'Female'
+        $('input[name=gender]').val('Female');
+    }
+
+     $("#profile-image").on('change', function () {
+       // document.getElementById('output').src = window.URL.createObjectURL(this.files[0]);
+        var imageURL = window.URL.createObjectURL(this.files[0]);
+        $(".profile-image-container").css("background-image", "url(" + imageURL + ")");
+        //$(".camera").addClass("hide");
+    });
+
+    // Gender button toggle
+    $(".gender-btn").on('click', function(e) {
+    e.preventDefault();
+    var btn = e.target.id;
+    
+    if (btn == "male") {
+        $("#male").addClass("selected");
+        $("#female").removeClass("selected");
+
+        // Change value of hidden input to 'Male'
+        $('input[name=gender]').val('Male');
+    } else {
+        $("#male").removeClass("selected");
+        $("#female").addClass("selected");
+
+        // Change value of hidden input to 'Female'
+        $('input[name=gender]').val('Female');
+        }
+    });
+
+    // Number input only on age
+    function validateNum(e) {
+        var theEvent = e || window.event;
+
+        // Handle paste
+        if (theEvent.type === 'paste') {
+            key = event.clipboardData.getData('text/plain');
+        } else {
+        // Handle key press
+            var key = theEvent.keyCode || theEvent.which;
+            key = String.fromCharCode(key);
+        }
+        var regex = /[0-9]|\./;
+        if( !regex.test(key) ) {
+            theEvent.returnValue = false;
+            if(theEvent.preventDefault) theEvent.preventDefault();
+        }
+    }
+
+    // Get image on change
+    /*
+    let fd = new FormData(document.forms[0]);
+    $("#profile-image").on('change', function () {
+        //let file = this.files[0];
+        var file = $('#profile-image').prop('files')[0];
+        fd.append('file', file);
+        //let csrftoken = $("[name=csrfmiddlewaretoken]").val();
+        //fd.append('csrfmiddlewaretoken', csrftoken);
+        console.log(fd.values())
+        for (var value of fd.values()) {
+            console.log(value);
+        }
+    });
+    */
+
+    // Client Side Form Validation (input fields)
+    $('form').on('submit', function(e) {
+        e.preventDefault();
+
+        checkInputFields();
+    });
+
+    // Check input fields 
+    function checkInputFields() {
+        let name = $("input[name='name']").val();
+        let year = $("[name='year']").val();
+        let month = $("[name='month']").val();
+        let gender = $("[name='gender']").val();
+
+        let username = $("input[name='username']").val();
+        let password = $("input[name='password']").val();
+
+        let province = $("input[name='province']").val();
+        let city = $("input[name='city']").val();
+
+        let about = $(".form-input-multi[name='about']").val();
+
+        let data = [name, year, month, gender, username, password, province, city, about];
+        //console.log(data);
+
+        if (data.includes("")) {
+            $('.validation-error').removeClass('hide');
+            $('.validation-error').html('Fill up all the input fields.');
+        } else {
+            $('.validation-error').addClass('hide');
+            $('.validation-error').html('');
+
+            //Hide button, show spinner
+            $('.form-submit').addClass('hide');
+            $('.button-spinner').removeClass('hide');
+
+            //Save changes
+            saveChanges(data)
+        }
+    }
+
+    // Save Changes
+    function saveChanges(data) {
+        $.ajax({
+                url: "{% url 'save_changes' %}",
+                method: "POST",
+                data : {
+                    'csrfmiddlewaretoken': $("input[name=csrfmiddlewaretoken]").val(),
+                    'name' : data[0],
+                    'year' : data[1],
+                    'month' : data[2],
+                    'gender' : data[3],
+                    'username' : data[4],
+                    'password' : data[5],
+                    'province' : data[6],
+                    'city' : data[7],
+                    'about' : data[8]
+                },
+                dataType: 'json',
+                success: function(response) {
+                    console.log(response);
+                    
+                    // Instead of submit form, just reload
+                    location.reload();
+
+                    // Submit form
+                    //$('form').unbind('submit').submit(); 
+                }
+        });
+    }
+
+</script>
+{% endblock content %}

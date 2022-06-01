@@ -1,0 +1,43 @@
+{% extends 'main.html' %}
+{% load static %}
+
+{% block content %}
+
+<div class="container">
+    <div class="content">
+        {% include 'navbar.html' %}
+        
+        <div class="header no-center">
+            <a href="{% url 'matches' %}"><img class="back" src="{% static 'images/back.svg' %}" draggable="false"></a>
+            <div class="profile-header">
+                <div class="profile-image-container" data="/{{clicked_user_profile.image}}" style="cursor: default;">
+                    <img class="profile-camera hide" src="{% static 'images/camera.svg' %}" draggable="false">
+                    <input class="profile-image-btn" type="button" style="cursor: default;">
+                </div>
+            
+                <div class="profile-match-name">{{clicked_user_profile.name}}</div>
+                <div class="profile-match-username">@{{clicked_user_profile.username}}</div>
+            </div>
+        </div>
+
+        <div class="other-profile-info" style="margin-top: 160px; overflow-y: hidden;">
+            <div class="profile-heading pm">Age</div>
+            <div class="profile-subheading">{{clicked_user_profile.year}} yr. {{clicked_user_profile.month}} mo.</div>
+            <div class="profile-heading pm">Gender</div>
+            <div class="profile-subheading">{{clicked_user_profile.gender}}</div>
+            <div class="profile-heading pm">Location</div>
+            <div class="profile-subheading">{{clicked_user_profile.city}}, {{clicked_user_profile.province}}</div>
+            <div class="profile-heading pm">About</div>
+            <div class="profile-subheading">{{clicked_user_profile.about}}</div>
+        </div>
+
+    </div>
+</div>
+
+<script>
+    // Onload add background image
+    $('.profile-image-container').css('background-image', "url(" + $('.profile-image-container').attr('data') + ")");
+
+    
+</script>
+{% endblock content %}

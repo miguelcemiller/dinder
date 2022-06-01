@@ -1,32 +1,222 @@
 {% extends 'main.html' %}
-
+{% load static %}
 
 {% block content %}
 
-<div class="register-form-container">
-    <div>Create an Account</div>
-    <form class="register-form" action="{% url 'register' %}" method="POST" enctype="multipart/form-data">
-        {% csrf_token %}
-        <div class="form-heading">Personal Info</div>
-        <div class="fullname-container">
-            <input class="form-text" name="firstname" placeholder="First Name">
-            <input class="form-text" name="lastname" placeholder="Last Name">
+<div class="container">
+    <div class="content">
+        {% include 'navbar.html' %}
+
+        <div class="header">
+            <a href="{% url 'login' %}"><img class="back" src="{% static 'images/back.svg' %}" draggable="false"></a>
+            <div>Create Account</div>
         </div>
-        <input class="form-text" name="location" placeholder="Location">
-        <input class="form-text" name="username" placeholder="Username">
-        <input class="form-text" type="password" name="password" 
-        placeholder="Password">
-        <input type="file" id="img1" name="userimage" accept="image/*">
-        <div class="form-heading">Dog Info</div>
-        <input class="form-text" name="dogname" placeholder="Dog Name">
-        <input class="form-text" name="dogage" placeholder="Age in Months">
-        <input class="form-text" name="dogdescription" placeholder="What do you want to say?">
-        <input type="file" id="img2" name="dogimage" accept="image/*">
-        <input class="form-submit" type="submit" value="Create Account">
-    </form>
+
+
+        <form class="register-form" action="{% url 'register' %}" method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="register-form-top">
+                <div style="position: relative; width: 195px; height: 195px;">
+                    <img class="camera" src="{% static 'images/camera.svg' %}" draggable="false">
+                    <input class="form-image-btn" type="button"  onclick="document.getElementById('form-image').click()">
+                    <input id="form-image" type="file" name="image" accept="image/*" style="display: none">
+                </div>
+                
+                
+                <div>
+                    <input class="form-input" name="name" placeholder="Name">
+                    <div class="age-container">
+                        <input type="text" maxlength="2" onkeypress="validateNum(event)" class="form-input" name="year" placeholder="0">
+                        <div>yr.</div>
+                        <input type="text" maxlength="2" onkeypress="validateNum(event)" class="form-input" name="month" placeholder="0">
+                        <div>mo.</div>
+                    </div>
+                    
+                    <div class="gender-btn-container">
+                        <input type="button" id="male" class="gender-btn" value="Male">
+                        <input type = "button" id="female"  class="gender-btn" value="Female">
+
+                        <input type="hidden" name="gender" value="">
+                    </div>
+                </div>
+            </div>
+
+            <div class="login-details-container">
+                <input class="form-input" type="" name="username" placeholder="Username">
+                <input class="form-input" type="password" name="password" placeholder="Password">
+            </div>
+            
+            <div class="location-container">
+                <input class="form-input" name="province" placeholder="Province">
+                <input class="form-input" name="city" placeholder="City">
+            </div>
+
+            <textarea class="form-input-multi" name="about" placeholder="Tell something about yourself..."></textarea>
+
+            <div class="validation-error hide"></div>
+
+            <div class="button-spinner hide">
+                <div class="spinner"></div>
+            </div>
+            <input class="form-submit" type="submit" value="Register">
+        </form>
     
-    <a href="{% url 'login' %}"><div>Already have an account</div></a>
+    </div>
 </div>
 
+
+<script>
+
+    // Add image background 
+    $("#form-image").on('change', function () {
+       // document.getElementById('output').src = window.URL.createObjectURL(this.files[0]);
+        var imageURL = window.URL.createObjectURL(this.files[0]);
+        $(".form-image-btn").css("background-image", "url(" + imageURL + ")");
+        $(".form-image-btn").css("background-size", "cover");
+        $(".form-image-btn").css("background-repeat", "no-repeat");
+        $(".camera").addClass("hide");
+
+        //change opacity when hover
+        $(".form-image-btn").hover(function() {
+            $(this).animate({'opacity':'0.5'}, 100);
+            $(".camera").removeClass("hide");
+        },
+        function (){
+            $(this).animate({'opacity':'1'}, 100);
+            $(".camera").addClass("hide");
+        });
+
+        // hide validation error
+        $('.validation-error').addClass('hide');
+    });
+
+    // Number input only on age
+    function validateNum(e) {
+        var theEvent = e || window.event;
+
+        // Handle paste
+        if (theEvent.type === 'paste') {
+            key = event.clipboardData.getData('text/plain');
+        } else {
+        // Handle key press
+            var key = theEvent.keyCode || theEvent.which;
+            key = String.fromCharCode(key);
+        }
+        var regex = /[0-9]|\./;
+        if( !regex.test(key) ) {
+            theEvent.returnValue = false;
+            if(theEvent.preventDefault) theEvent.preventDefault();
+        }
+    }
+
+    // Gender buttons toggle
+    $(".gender-btn").on('click', function(e) {
+        e.preventDefault();
+        var btn = e.target.id;
+        
+        if (btn == "male") {
+            $("#male").addClass("selected");
+            $("#female").removeClass("selected");
+
+            // Change value of hidden input to 'Male'
+            $('input[name=gender]').val('Male');
+        } else {
+            $("#male").removeClass("selected");
+            $("#female").addClass("selected");
+
+            // Change value of hidden input to 'Female'
+            $('input[name=gender]').val('Female');
+        }
+    });
+
+
+    // Client Side Form Validation (image, username, and input fields)
+    $('form').on('submit', function(e) {
+        e.preventDefault();
+
+        checkImage();
+    });
+
+    // Check username
+    function checkUsername(username) {
+        $.ajax({
+                url: "{% url 'post_username' %}",
+                method: "POST",
+                data : {
+                'csrfmiddlewaretoken': $("input[name=csrfmiddlewaretoken]").val(),
+                'username' : username,
+                },
+                dataType: 'json',
+                success: function(response) {
+                    // Does user exist
+                    $.ajax({
+                        url: "{% url 'check_username' %}",
+                        method: "GET",
+                        dataType: 'json',
+                        success: function(response) {
+                            if (response.val) {
+                                //User Exists
+                                $('.validation-error').removeClass('hide');
+                                $('.validation-error').html('The username you entered already exists.');
+                            } else {
+                                $('.validation-error').addClass('hide');
+                                $('.validation-error').html('');
+                                
+                                //Hide button, show spinner
+                                $('.form-submit').addClass('hide');
+                                $('.button-spinner').removeClass('hide');
+
+                                //Submit form
+                                $('form').unbind('submit').submit();
+                            }
+                        }
+                    }); 
+                }
+        });
+    }
+
+    // Check Image
+    function checkImage() {
+        if ($('.form-image-btn').css('background-image') === 'none') {
+            $('.validation-error').removeClass('hide');
+            $('.validation-error').html('You need to upload an image.');
+        } else {
+            $('.validation-error').addClass('hide');
+            $('.validation-error').html('');
+
+            checkInputFields();
+        }
+    }
+
+    // Check input fields 
+    function checkInputFields() {
+        let name = $(".form-input[name='name']").val();
+        let year = $(".form-input[name='year']").val();
+        let month = $(".form-input[name='month']").val();
+        let gender = $("input[name='gender']").val();
+       
+        let username = $(".form-input[name='username']").val();
+        let password = $(".form-input[name='password']").val();
+
+        let province = $(".form-input[name='province']").val();
+        let city = $(".form-input[name='city']").val();
+
+        let about = $(".form-input-multi[name='about']").val();
+
+        let data = [name, year, month, gender, username, password, province, city, about];
+        console.log(data);
+
+        if (data.includes("")) {
+            $('.validation-error').removeClass('hide');
+            $('.validation-error').html('Fill up all the input fields.');
+        } else {
+            $('.validation-error').addClass('hide');
+            $('.validation-error').html('');
+
+            checkUsername(username);
+        }
+    }
+
+</script>
 
 {% endblock content %}

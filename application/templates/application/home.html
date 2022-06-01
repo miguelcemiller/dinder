@@ -2,136 +2,416 @@
 {% load static %}
 
 {% block content %}
-    
-    <div class="card-container">
-        {% if profiles_dog_breed_len == 0 %}
-        <div class="nothing-container">
-            <div>Uh, oh!</div>
-            <img src="{% static 'images/no_dogs2_trans.png' %}" draggable="false" >
+
+<div class="container home">
+    <div class="content">
+        {% include 'navbar.html' %}
+
+        <div class="breed-container">
+            <input type="button" id="same-breed" class="breed-btn" value="Same breed">
+            <input type="button" id="cross-breed" class="breed-btn" value="Cross breed">
         </div>
-        {% else %}
-        <div class="user-container">
-            <div class="user-icon-container">
-                <img class="user-icon" src="" draggable="false">
+
+        <div class="photo-container" username="">
+            <div class="dog-location-container">
+                <img src="{% static 'images/location.svg' %}" draggable="false">
+                <div class="location-js"></div>
             </div>
-            <div class="user-name"></div>
-        </div>
-        <div class="photo-container">
-            <img class="photo" src="" draggable="false">
-        </div>
-        <div class="details-container">
-            <div class="dog-info">
-                <div class="info-container">
-                    <div></div>
-                    <div> months</div>
-                </div>
-                <div class="dog-location-container">
-                    <img class="location-icon" src="{% static 'images/location.svg' %}" draggable="false">
-                    <div>, Laguna</div>
-                </div>
+
+            <div class="info-container">
+                <div class="name-age-js"></div>
+                <div class="about-js"></div>
             </div>
-            <div class="dog-desc">
-                
+
+            <div class="photo-filter"></div>
+            <img class="photo photo-js" src="" draggable="false">
+
+            <div class="next-second"></div>
+            <div class="next-first"></div>
+        </div>
+
+        <div class="photo-container-not-found hide">
+            <div class="not-found">
+                <div>404</div>
+                <img src="{% static 'images/404.png' %}" draggable="false">
             </div>
         </div>
+
+
         <div class="options-container">
-            <img class="reject" src="{% static 'images/reject.svg' %}">
-            <img class="love" src="{% static 'images/love.svg' %}" data-url="{% url 'dog_cards' %}">
+            {% csrf_token %}
+            <div class="reject-container options-common">
+                <img class="reject" src="{% static 'images/reject.svg' %}" draggable="false">
+            </div>
+            <div class="like-container options-common">
+                <img class="like" src="{% static 'images/like.svg' %}" draggable="false">
+            </div>
         </div>
-        {% endif %}
+
+        <a class="logout-container" href="/logout" title="Logout">
+            <img src="{% static 'images/logout.svg' %}" draggable="false" style="display: block">
+        </a>
     </div>
+</div>
 
+<div class="container matched hide">
+    <div class="content relative">
+        {% include 'navbar.html' %}
 
-    <script>
-        // When html page has been loaded, Get JSON data from Django
-        var response_data = {}
-        var i = 0;
-        var num = 0;
+        <div class="header no-center">
+            <a href="{% url 'home' %}"><img class="back-alt" src="{% static 'images/back-alt.svg' %}" draggable="false"></a>
+            <img class="hearts-background" src="{% static 'images/matched-hearts.svg' %}" draggable="false">
+        </div>
 
-        $(document).ready(function(){
+        <div class="matched-message">
+            <div>It's a match!</div>
+            <div>You and <span class="match-name-js"></span> have liked each other.</div>
+
+            <div class="lovers-container">
+                <div class="lover left">
+                    <img src="/{{user_profile.image}}" draggable="false">
+                </div>
+                <div class="dog-paws">
+                    <img src="{% static 'images/paw.svg' %}" draggable="false">
+                </div>
+                <div class="lover right">
+                    <img src="" class="match-right-js" draggable="false">
+                </div>
+            </div>
+        </div>
+
+        <div class="buttons-container">
+            <button class="button white-fill message-js">Send a message</button>
+            <button class="button white-outline profile-js"><span class="match-name-js"></span>'s' profile</button>
+            <button class="button white-outline prediction-js">Puppy prediction</button>
+        </div>
+
+    </div>
+</div>
+
+<script>
+    // When code is ready to be executed
+    $(document).ready(function () {
+
+        let userProfiles = {};
+        let userProfileIndex = 0;
+        let userProfilesLength = 0;
+
+        let usernameChoiceList = getUsernameChoiceList();
+
+        // Functions (AJAX calls)
+        function getUsernameChoiceList() {
+            var temp = null;
             $.ajax({
-                url: $('.love').attr('data-url'),
+                async: false,
+                url: "{% url 'get_username_choice_list' %}",
                 method: "GET",
                 dataType: 'json',
-                success: function(response) {
-                    console.log(response.response);
-                    num = response.response.length;
-                    //alert(num);
-                    response_data = response.response;
-                    //console.log(response_data[0].fields)
+                success: function (response) {
+                    temp = response.response;
+                }
+            });
+            return temp;
+        }
 
-                    // Assign value of first same user breed
-                    updateCard(response_data);
+        function postUsernameChoiceList(usernamelist) {
+            $.ajax({
+                url: "{% url 'post_username_choice_list' %}",
+                method: "POST",
+                data: {
+                    'csrfmiddlewaretoken': $("input[name=csrfmiddlewaretoken]").val(),
+                    'usernamelist': usernamelist,
                 },
-                error: function(err) {
-                    console.log(err);
+                dataType: 'json',
+                success: function (response) {
                 }
             });
-            
-            // Love click event listener
-            $('.love').on('click', function() {
-                i += 1;
-                if (i < num) {
-                    updateCard(response_data);
-                }
-                else {
-                    $('.card-container').empty();
-                    $('.card-container').html(
-                        `<div class="nothing-container">
-                            <div>Uh, oh!</div>
-                            <img src="{% static 'images/no_dogs2_trans.png' %}" draggable="false" >
-                         </div>`
-                    );
-                }
-            });
+        }
 
-             // Reject click event listener
-             $('.reject').on('click', function() {
-                i += 1;
-                if (i < num) {
-                    updateCard(response_data);
-                }
-                else {
-                    $('.card-container').empty();
-                    $('.card-container').html(
-                        `<div class="nothing-container">
-                            <div>Uh, oh!</div>
-                            <img src="{% static 'images/no_dogs2_trans.png' %}" draggable="false" >
-                         </div>`
-                    );
+        function getUsersSameBreed() {
+            var temp = [];
+            var temp1, temp2 = null;
+            $.ajax({
+                async: false,
+                url: "{% url 'same_breed' %}",
+                method: "GET",
+                dataType: 'json',
+                success: function (response) {
+                    temp1 = response.response;
+                    temp2 = response.response.length;
+                    temp = [temp1, temp2];
                 }
             });
+            return temp;
+        }
 
+        function getUsersCrossBreed() {
+            var temp = [];
+            var temp1, temp2 = null;
+            $.ajax({
+                async: false,
+                url: "{% url 'cross_breed' %}",
+                method: "GET",
+                dataType: 'json',
+                success: function (response) {
+                    temp1 = response.response;
+                    temp2 = response.response.length;
+                    temp = [temp1, temp2];
+                }
+            });
+            return temp;
+        }
+
+
+        function getMatchedUsernames() {
+            var temp = [];
+            $.ajax({
+                async: false,
+                url: "{% url 'get_matched_usernames' %}",
+                method: "GET",
+                dataType: 'json',
+                success: function (response) {
+                    temp = response.response;
+                }
+            });
+            return temp;
+        }
+
+        function postClickedUserUsername(clickedUserUsername, toPOST) {
+            var temp = null;
+            $.ajax({
+                url: "{% url 'post_clicked_user_username' %}",
+                async: false,
+                method: "POST",
+                data: {
+                    'csrfmiddlewaretoken': $("input[name=csrfmiddlewaretoken]").val(),
+                    'clickedUserUsername': clickedUserUsername,
+                    'toPOST': toPOST,
+                },
+                dataType: 'json',
+                success: function (response) {
+                    temp = response.response;
+                }
+            });
+            return temp;
+        }
+
+        // Utilties
+        function checkUsernameList() {
+            let temp = [];
+
+            // Add each username of usernameChoiceList to list
+            for (let x = 0; x < usernameChoiceList.length; x++) {
+                temp.push(usernameChoiceList[x].username);
+            }
+            console.log(temp, userProfileIndex, userProfiles[userProfileIndex].fields.username)
+            while (temp.includes(userProfiles[userProfileIndex].fields.username)) {
+                userProfileIndex += 1;
+                if (userProfileIndex == userProfilesLength) {
+                    show404();
+                    return;
+                } else {
+                    // Check match
+                    checkMatch();
+                }
+            }
+        }
+
+        function updateCard() {
+            checkUsernameList();
+            if (userProfileIndex < userProfilesLength) {
+                hide404();
+
+                $('.location-js').html(userProfiles[userProfileIndex].fields.city + ", " + userProfiles[userProfileIndex].fields.province);
+                $('.name-age-js').html(userProfiles[userProfileIndex].fields.name + ", " + userProfiles[userProfileIndex].fields.year + " yr. " + userProfiles[userProfileIndex].fields.month + " mo.");
+                $('.about-js').html(userProfiles[userProfileIndex].fields.about);
+                $('.photo-js').attr('src', userProfiles[userProfileIndex].fields.image);
+                $('.photo-container').attr('username', userProfiles[userProfileIndex].fields.username);
+            }
+        }
+
+        function show404() {
+            $('.photo-container-not-found').removeClass('hide');
+            $('.photo-container').addClass('hide');
+
+            $('.options-container').css('opacity', 0.75);
+            $('.options-container').css('pointer-events', 'none');
+        }
+
+        function hide404() {
+            $('.photo-container-not-found').addClass('hide');
+            $('.photo-container').removeClass('hide');
+
+            $('.options-container').css('opacity', 1);
+            $('.options-container').css('pointer-events', '');
+        }
+
+
+        //Set on Same breed default
+        $("#same-breed").addClass("selected");
+        $("#cross-breed").removeClass("selected");
+
+        userProfiles = getUsersSameBreed()[0];
+        userProfilesLength = getUsersSameBreed()[1];
+        userProfileIndex = 0;
+
+        if (!userProfilesLength) {
+            show404();
+        } else {
+            // matching here
+            checkMatch();
+            updateCard();
+        }
+
+
+        // Breed buttons toggle
+        $(".breed-btn").on('click', function (e) {
+            e.preventDefault();
+            var btn = e.target.id;
+
+            if (btn == "same-breed") {
+                $("#same-breed").addClass("selected");
+                $("#cross-breed").removeClass("selected");
+
+                userProfiles = getUsersSameBreed()[0];
+                userProfilesLength = getUsersSameBreed()[1];
+                userProfileIndex = 0;
+
+                if (!userProfilesLength) {
+                    show404();
+                } else {
+                    // matching here
+                    checkMatch();
+                    updateCard();
+                }
+            } else {
+                $("#same-breed").removeClass("selected");
+                $("#cross-breed").addClass("selected");
+
+                userProfiles = getUsersCrossBreed()[0];
+                userProfilesLength = getUsersCrossBreed()[1];
+                userProfileIndex = 0;
+
+                if (!userProfilesLength) {
+                    show404();
+                } else {
+                    // matching here
+                    checkMatch();
+                    updateCard();
+                }
+            }
         });
 
+        // Like click event listener
+        $('.like-container').on('click', function () {
+            // When like is clicked, push {[username, choice]} to list
+            usernameChoiceList.push({ 'username': userProfiles[userProfileIndex].fields.username, 'choice': 'like' });
+            // Convert to string
+            usernamelist = JSON.stringify(usernameChoiceList);
+            // Save to database
+            postUsernameChoiceList(usernamelist);
 
-        function updateCard(response_data) {
-            // Change user picture
-            $('.user-icon').attr('src', response_data[i].fields.user_image);
-            // Change username
-            $('.user-name').html(response_data[i].fields.username);
+            // Check Match
+            checkMatch();
 
-            // Change dog photo
-            $('.photo').attr('src', response_data[i].fields.dog_image);
+            // Next
+            console.log('index before:', userProfileIndex, 'len:', userProfilesLength);
+            userProfileIndex += 1;
+            console.log('index after:', userProfileIndex, 'len:', userProfilesLength);
+            if (userProfileIndex < userProfilesLength) {
+                updateCard();
+            } else {
+                show404();
+            }
+        });
 
-            // Change dog desccription
-            $('.dog-desc').attr('src', response_data[i].fields.dog_description);
+        // Reject click event listener
+        $('.reject-container').on('click', function () {
+            // When reject is clicked, push {[username, choice]} to list
+            usernameChoiceList.push({ 'username': userProfiles[userProfileIndex].fields.username, 'choice': 'reject' });
+            // POST usernameChoiceList to my database
+            usernamelist = JSON.stringify(usernameChoiceList);
+            postUsernameChoiceList(usernamelist);
 
-            // Change dog name
-            $('.info-container > div:first-child').html(response_data[i].fields.dog_name);
+            // No need to checkMatch()
 
-            // Change dog age
-            $('.info-container > div:last-child').html(response_data[i].fields.dog_age + " months");
+            console.log('index before:', userProfileIndex, 'len:', userProfilesLength);
+            userProfileIndex += 1;
+            console.log('index after:', userProfileIndex, 'len:', userProfilesLength);
+            if (userProfileIndex < userProfilesLength) { //If index + 1 is still less than len
+                updateCard();
+            } else {
+                show404();
+            }
+        });
 
-            // Change dog location
-            $('.dog-location-container > div').html(response_data[i].fields.location + ", Laguna");
+        function checkMatch() {
+            // Get my usernameChoiceList
+            console.log("MY USERNAMECHOICELIST:", usernameChoiceList);
+            // Get usernames with choice = 'like' (me)
+            let usernamesILike = []
+            for (x = 0; x < usernameChoiceList.length; x++) {
+                var choice = usernameChoiceList[x].choice;
+                if (choice == "like") {
+                    usernamesILike.push(usernameChoiceList[x].username);
+                }
+            }
+            console.log("Usernames I like:", usernamesILike);
+            
+            // Get clicked user's usernameChoiceList
+            let clickedUserUsername = userProfiles[userProfileIndex].fields.username;
+            let clickedUserUsernameChoiceList = postClickedUserUsername(clickedUserUsername, false)[3].username_list_clicked;
+            console.log("CLICKED USER'S USERNAMECHOICELIST:", clickedUserUsernameChoiceList, clickedUserUsername);
+            
+            // Get usernames with choice = 'like' (user)
+            let usernamesClickedUserLikes = [];
+            for (x = 0; x < clickedUserUsernameChoiceList.length; x++) {
+                var choice = clickedUserUsernameChoiceList[x].choice;
+                if (choice == "like") {
+                    usernamesClickedUserLikes.push(clickedUserUsernameChoiceList[x].username);
+                }
+            }
+            console.log("Usernames clicked user likes:", usernamesClickedUserLikes);
 
-            // Change dog desccription
-            $('.dog-desc').html(response_data[i].fields.dog_description); 
+            // Check if I like the user, and the user likes me also
+            if (usernamesILike.includes(clickedUserUsername) && usernamesClickedUserLikes.includes('{{request.user.username}}')) {
+                // Match
+                // If clickedUsername not in matched_usernames[], then save to database
+                if (getMatchedUsernames().includes(clickedUserUsername) == false) {
+                    // Save username in matched_usernames[]
+                    data = postClickedUserUsername(clickedUserUsername, true);
+            
+                    $('.container.home').addClass('hide');
+                    $('.container.matched').removeClass('hide');
+                    $('.match-name-js').html(data[1].name);
+                    $('.match-right-js').attr('src', '/' + data[2].image);
+                    // nav
+                    $('.matches-img').addClass('hide');
+                    $('.matches-img-alt').removeClass('hide');
+                    $('.logo').addClass('hide');
+                    $('.logo-alt').removeClass('hide');
+
+
+                    let matches_len = data[4].matches_len;
+                    if (matches_len > 0) {
+                        $('.matches-container').append(`<div class="matches-number-container">${matches_len}</div>`);
+                        $('.matches-number-container').css('color', '#EF2C50');
+                        $('.matches-number-container').css('background-color', '#FEFEFE');
+                    }
+
+                    // buttons
+                    $('.message-js').on('click', function() {window.location.href=`/message/${clickedUserUsername}`});
+                    $('.profile-js').on('click', function() {window.location.href=`/profile/${clickedUserUsername}`});
+                    $('.prediction-js').on('click', function() {window.location.href=`/prediction/${clickedUserUsername}`});
+
+                }
+            } else {
+                // Not match
+            }
         }
-        
-    </script>
-    
+    });
+
+</script>
+
 
 {% endblock content %}
-

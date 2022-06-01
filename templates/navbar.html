@@ -1,98 +1,35 @@
 {% load static %}
 
-<header>
-    <div class="profile-nav-overlay">
-        <div class="slider slide-out">
-            <div class="profile-nav-modal">
-                <div class="modal-header">
-                    <div class="profile-icon-container">
-                        <img class="profile-icon" src="{{current_user_profile.user_image}}" draggable="false">
-                    </div>
-                    <div class="profile-name">{{current_user_profile.first_name}}</div>
-                    <img class="nav-close" src="{% static 'images/close.svg'%}">
-                </div>
-                <div class="modal-main-menu">
-                    <div class="main-menu-heading">Main Menu</div>
-                    <div class="main-menu-container">
-                        <img src="{% static 'images/home.svg' %}">
-                        <div>Home</div>
-                    </div>
-                    <div class="main-menu-container">
-                        <img src="{% static 'images/profile.svg' %}">
-                        <div>Profile</div>
-                    </div>
-                    <a href="{% url 'logout' %}" class="main-menu-container">
-                        <img src="{% static 'images/logout.svg' %}">
-                        <div>Logout</div>
-                    </a>
-                </div>
-                <div class="modal-stats">
-                    
-                </div>
-                <div class="modal-messages">
-                    
-                </div>
-            </div>
+
+{% if '/login' in request.path or 'register' in request.path %}
+<div class="navbar" style="justify-content: center">
+{% else %}
+<div class="navbar">
+{% endif %}
+    {% if '/login' in request.path or 'register' in request.path %}
+
+    {% else %}
+    <a href="/matches" draggable="false" title="Matches" data={{request.path}}>
+        <div class="matches-container">
+            {% if matches_len > 0 %}
+            <div class="matches-number-container">{{matches_len}}</div>
+            {% endif %}
+            <img class="matches-img" src="{% static 'images/matches.svg' %}" draggable="false">
+            <img class="matches-img-alt hide" src="{% static 'images/matches-alt.svg' %}" draggable="false">
         </div>
-
-    </div>
-
+    </a>
+    {% endif %}
     
+    <a href="/" draggable="false">
+        <img class="logo" src="{% static 'images/dinder.svg' %}" draggable="false" title="Dinder">
+        <img class="logo-alt hide" src="{% static 'images/dinder-alt.svg' %}" draggable="false" title="Dinder"> 
+    </a>
 
-    <nav>
-        {% if request.get_full_path == '/home'%}
-        
-        <div class="profile-nav-container">
-            <div class="profile-nav">
-                <span class="profile-icon-container">
-                    <img class="profile-icon" src="{{current_user_profile.user_image}}" draggable="false">
-                </span>
-                <div class="profile-name">{{current_user_profile.first_name}}</div>
-            </div>
-        </div>
-        {% endif %}
+    {% if '/login' in request.path or 'register' in request.path %}
 
-        <a class="logo" href="/" draggable="false">
-            <img class="logo" src="{% static 'images/dinder.svg' %}" draggable="false">
-        </a>
-    </nav>  
- 
-</header>
-
-
-<script>
-
-    // Modal Side Nav
-    $('.profile-nav-container').click(function(e) {
-        // Display modal
-        $('.profile-nav-overlay').css('display', 'flex');
-
-        $('.slider').removeClass('slide-out');
-        $('.slider').addClass('slide-in');
-
-    });
-
-    // On close click
-    $(".nav-close").on("click", function() {
-        $('.slider').removeClass('slide-in');
-        $('.slider').addClass('slide-out');
-
-         // wait 0.5s for animation to finish
-        setTimeout(function() {
-            $(".profile-nav-overlay").css("display", "none");
-        }, 500);
-    });
-
-    // When overlay background is clicked
-
-    $(".profile-nav-overlay").on("click", function() { 
-        $('.slider').removeClass('slide-in');
-        $('.slider').addClass('slide-out');
-
-         // wait 0.5s for animation to finish
-        setTimeout(function() {
-            $(".profile-nav-overlay").css("display", "none");
-        }, 500);
-    });
-
-</script>
+    {% else %}
+    <a href="/profile" draggable="false" title="Profile">
+        <div class="navbar-profile-image-container" style="background-image: url('/{{user_profile.image}}')"></div>
+    </a>
+    {% endif %}
+</div>

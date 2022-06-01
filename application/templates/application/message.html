@@ -1,0 +1,57 @@
+{% extends 'main.html' %}
+{% load static %}
+
+{% block content %}
+
+<div class="container relative">
+    <div class="content">
+        {% include 'navbar.html' %}
+
+        <div class="header no-center" data="{{group_messages}}">
+            <a href="{% url 'matches' %}"><img class="back" src="{% static 'images/back.svg' %}" draggable="false"></a>
+            <div class="other-user-header">
+                <img src="/{{clicked_user_profile.image}}" draggable="false">
+                <div>{{clicked_user_profile.name}}</div>
+            </div>
+        </div>
+
+
+        <div class="conversation">
+            {% for gm in group_messages %}
+                {% if gm.sender == sender %}
+                <div class="chat-container chat-you-user">
+                    <div class="convo-container you-user">
+                        <div>{{gm.message}}</div>
+                    </div>
+                    <img src="/{{user_profile.image}}" draggable="false" style="margin-right: 10px;">
+                </div>
+                {% else %}
+                <div class="chat-container chat-other-user">
+                    <img src="/{{clicked_user_profile.image}}" draggable="false">
+                    <div class="convo-container other-user">
+                       <div>{{gm.message}}</div>
+                    </div>
+                </div>
+                {% endif %}
+            {% endfor %}
+        </div>
+    
+        <form class="register-form" action="/message/{{clicked_user_profile.username}}" method="POST">
+            {% csrf_token %}
+            <div class="send-message-container">
+                <input placeholder="Type a message" name="message">
+                <input type="submit" value="Send">
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function() {
+        if ( window.history.replaceState ) {
+            window.history.replaceState( null, null, window.location.href);
+        }
+    });
+</script>
+
+{% endblock content %}

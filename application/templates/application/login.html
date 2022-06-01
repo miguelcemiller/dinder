@@ -1,18 +1,106 @@
 {% extends 'main.html' %}
-
+{% load static %}
 
 {% block content %}
 
-<div class="login-form-container">
-    <div>Login</div>
-    <form class="login-form" action="{% url 'login' %}" method="POST">
-        {% csrf_token %}
-        <input class="form-text" name="username" placeholder="Username">
-        <input class="form-text" type="password" name="password" placeholder="Password">
-        <input class="form-submit" type="submit" value="Log In">
-    </form>
-    <a href="{% url 'register' %}"><div>Create an account</div></a>
+<div class="container">
+    <div class="splash blink">
+        <img src="{% static 'images/dinder.svg' %}" draggable="false">
+    </div>    
+
+    <div class="content hide">
+        {% include 'navbar.html' %}
+        <div class="dog-hero">
+            <img src="{% static 'images/dog.svg' %}" draggable="false">
+        </div>
+
+        <form class="login-form" action="{% url 'login' %}" method="POST">
+            {% csrf_token %}
+            <input class="form-input" type="" name="username" placeholder="Username">
+            <input class="form-input" type="password" name="password" placeholder="Password">
+
+            <div class="validation-error login-error hide"></div>
+
+            <div class="button-spinner hide">
+                <div class="spinner"></div>
+            </div>
+            <input class="form-submit" type="submit" value="Login">
+        </form>
+
+        <a class="register-container" href="{% url 'register' %}">
+            <div class="register">Don't have an account?</div>
+        </a>
+    </div>
 </div>
+
+
+<script>
+    setTimeout(function(){
+        $(".splash").remove();
+        $(".content").removeClass("hide");
+    }, 500);
+
+    $('form').on('submit', function(e) {
+        e.preventDefault();
+
+        let username = $(".form-input[name='username']").val();
+        let password = $(".form-input[name='password']").val();
+
+        checkEmptyField(username, password);
+    })
+
+    // Check Empty Field
+    function checkEmptyField(username, password) {
+        if (username == '' || password == '') {
+            $('.validation-error').removeClass('hide');
+            $('.validation-error').html('Fill up all the input fields.');
+        } else {
+            $('.validation-error').addClass('hide');
+            $('.validation-error').html('');
+
+            checkLoginCred(username, password);
+        }
+    }
+    // Check Login Cred
+    function checkLoginCred(username, password) {
+        $.ajax({
+                url: "{% url 'post_login_cred' %}",
+                method: "POST",
+                data : {
+                'csrfmiddlewaretoken': $("input[name=csrfmiddlewaretoken]").val(),
+                'username' : username,
+                'password' : password,
+                },
+                dataType: 'json',
+                success: function(response) {
+                    $.ajax({
+                        url: "{% url 'check_login_cred' %}",
+                        method: "GET",
+                        dataType: 'json',
+                        success: function(response) {
+                            if (response.val == false) {
+                                // Username and password does not match
+                                $('.validation-error').removeClass('hide');
+                                $('.validation-error').html('Username and password does not match.');
+                            } else {
+                                $('.validation-error').addClass('hide');
+                                $('.validation-error').html('');
+                                
+                                //Hide button
+                                $('.form-submit').addClass('hide');
+                                $('.button-spinner').removeClass('hide');
+
+                                //Submit form
+                                $('form').unbind('submit').submit();
+                            } 
+                        }
+                    });
+                }
+        });
+    }
+
+
+</script>
 
 
 {% endblock content %}
