@@ -1,0 +1,40 @@
+{% extends 'main.html' %}
+{% load static %}
+
+{% block content %}
+
+<div class="container">
+    <div class="content">
+        {% include 'navbar.html' %}
+
+        <div class="header">
+            <a href="{% url 'matches' %}"><img class="back" src="{% static 'images/back.svg' %}" draggable="false"></a>
+            <div>Puppy</div>
+            <div class="data" data="/static/images/chowsky.png"></div>
+        </div>
+
+        
+        <div class="puppy-container">
+            <div class="puppy-message">If you and <span>{{clicked_user_profile.name}}</span> had a puppy, you'd have a...</div>
+
+            <div class="puppy-image-container-border">
+                <div class="puppy-image-container"></div>
+            </div>
+
+            <div class="puppy-name">Chuski</div>
+            <div class="puppy-about">
+                The Chuski is a mixed breed dog — a cross between the Chow Chow and Siberian Husky dog breeds. Curious, headstrong, and loving, these dogs inherited some of the best qualities from both of their parents.
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<script>
+    let puppyImage = $('.data').attr('data');
+    console.log(puppyImage);
+    $('.puppy-image-container').css('background-image', "url(" + puppyImage + ")");
+</script>
+
+
+{% endblock content %}

@@ -27,8 +27,8 @@
                     <div class="p-profile-gender-container">
                         <div class="p-gender-container" data="{{user_profile.gender}}">
                             <div class="profile-heading age-gender">Gender</div>
-                            <input type="button" id="male" class="gender-btn" value="Male">
-                            <input type = "button" id="female"  class="gender-btn" value="Female">
+                            <input type="button" id="male" class="gender-btn" value="Male" disabled style="pointer-events: none;">
+                            <input type = "button" id="female"  class="gender-btn" value="Female" disabled style="pointer-events: none;">
     
                             <input type="hidden" name="gender" value="">
                         </div>   
@@ -95,6 +95,9 @@
     if (gender == 'Male') {
         $("#male").addClass("selected");
         $("#female").removeClass("selected");
+
+        //change opacity
+        $("#male").css("opacity", 0.50);
 
         // Change value of hidden input to 'Male'
         $('input[name=gender]').val('Male');

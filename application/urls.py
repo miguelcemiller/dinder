@@ -51,4 +51,8 @@ urlpatterns = [
     # (Message)
     path('message/<slug:slug>', views.message_view, name="message"),
     path('message/<slug:slug>/', RedirectView.as_view(pattern_name='message')),
+
+    # (Prediction)
+    path('puppy/<slug:slug>', views.puppy_view, name="puppy"),
+    path('puppy/<slug:slug>/', RedirectView.as_view(pattern_name='puppy')),
 ]

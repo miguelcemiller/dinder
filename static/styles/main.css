@@ -100,8 +100,6 @@ body {
     text-decoration: none;
 }
 
-
-
 .matches-container {
     position: relative;
 }
@@ -1201,6 +1199,74 @@ body {
     margin-bottom: 10px;
     margin-top: -6px;
 }
+
+
+/*** Puppy ***/
+
+.puppy-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.puppy-image-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    
+    width: 200px;
+    height: 200px;
+    /** border-image-source: linear-gradient(180deg, rgba(242,104,94,1) 50%, rgba(239,44,80,1) 100%); */
+   /* border-image-source: radial-gradient(circle, rgba(242,104,94,1) 50%, rgba(239,44,80,1) 100%); */
+    border-radius: 50%;
+    background-image: none;
+    background-size: cover;
+    background-repeat: no-repeat;
+}
+
+.puppy-image-container-border {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    width: 210px;
+    height: 210px;
+    background: linear-gradient(180deg, rgba(242,104,94,1) 50%, rgba(239,44,80,1) 100%);
+    border-radius: 50%;
+
+    margin-bottom: 15px;
+}
+
+.puppy-message {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 500;
+    font-size: 16px;
+    color: var(--text-tertiary);
+
+    margin-bottom: 25px;
+}
+
+.puppy-name {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 700;
+    font-size: 30px;
+    color: var(--text-primary);
+
+    margin-bottom: 20px;
+}
+.puppy-about {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 500;
+    font-size: 16px;
+    color: var(--text-tertiary);
+    text-align: justify;
+}
+
+.puppy-container > div > span {
+    font-weight: 600;
+    color: var(--text-secondary);
+}
+
 
 /****** FOOTER*******/
 footer {
